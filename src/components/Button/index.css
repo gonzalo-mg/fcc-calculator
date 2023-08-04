@@ -1,0 +1,17 @@
+button {
+    width: 5rem;
+    height: 5rem;
+
+    font-weight: bold;
+    font-size: larger;
+
+    background-color: bisque;
+    transition: background-color 1s ease-in-out;
+
+    color: green;
+
+    border: 2px solid orange;
+
+    cursor: pointer;
+}
+  
