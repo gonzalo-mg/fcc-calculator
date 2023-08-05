@@ -9,7 +9,6 @@ function App() {
   const [output, setOutput] = useState("output");
   const [log, setLog] = useState("log");
   const [operand, setOperand] = useState("operand");
-  //const [operator, setOperator] = useState("+");
 
   // f to recover clicked button value
   const recoverKey = (k) => {
@@ -20,22 +19,6 @@ function App() {
   const resetKey = () => {
     console.log("resetKey - called");
     setKey(null);
-  };
-  // f reset opernad state
-  const updateOperand = async () => {
-    console.log("updateOperand - called");
-    // if output is operator do not update
-    switch (output) {
-      case "+":
-      case "-":
-      case "*":
-      case "/":
-        break;
-    // if output is number update
-      default:
-        await setOperand(output);
-        break;
-    }
   };
   // f to handle clicked key
   const handleKey = (key) => {
@@ -62,6 +45,7 @@ function App() {
       case "7":
       case "8":
       case "9":
+      case ".":
         console.log("numbers case 0-9:");
         //check previous input type
         switch (output) {
@@ -77,6 +61,23 @@ function App() {
           // when previous was not an operator build number
           default:
             console.log("case 0-9: previous data was digit");
+            // allow only one .
+            if (key === ".") {
+              console.log("input is .");
+              if (output.indexOf(".") !== -1) {
+                console.log(". already present - breaking");
+                break;
+              } else if (output === "0") {
+                console.log("output was 0: 0.");
+                setOutput("0.");
+                setOperand("0.");
+                break;
+              } else {
+                setOutput(output + key);
+                setOperand(output + key);
+                break;
+              }
+            }
             // allow only one initial 0
             if (output === "0") {
               console.log(
@@ -94,21 +95,8 @@ function App() {
               setOutput(output + key);
               setOperand(output + key);
             }
-            //setOperand(output);
-            break;
         }
         break;
-      /* case ".":
-        // allow only one . per number
-        // if not . present add it
-        if (!output.indexOf(".")) {
-          console.log("if not . present add it");
-          setOutput(output + key);
-          // if . already present do not add
-        } else {
-          console.log("if . already present do not add");
-        }
-        break; */
       // operators
       case "+":
       case "-":
@@ -148,13 +136,8 @@ function App() {
   };
   // ef to auto run handleKey when user clicks a button
   useEffect(() => handleKey(key), [key]);
-  //useEffect(() => updateOperand, [output]);
 
   useEffect(() => console.log(equation), [key]);
-
-  // f to update log by pushing current output char
-
-  // ef to auto run X
 
   return (
     <>
