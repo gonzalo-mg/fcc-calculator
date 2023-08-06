@@ -5,10 +5,10 @@ import { Button } from "./components/Button";
 let equation = [];
 
 function App() {
-  const [key, setKey] = useState("key");
-  const [output, setOutput] = useState("output");
-  //const [log, setLog] = useState("log");
-  const [operand, setOperand] = useState("operand");
+  const [key, setKey] = useState(null);
+  const [output, setOutput] = useState("0");
+  const [operand, setOperand] = useState("0");
+  const [outputCalculated, setOutputCalculated] = useState(false);
 
   // f to recover clicked button value
   const recoverKey = (k) => {
@@ -23,20 +23,22 @@ function App() {
   // f to handle clicked key
   const handleKey = (key) => {
     console.log("handleKey - called");
-    //recoverKey(key);
-    //switch
     switch (key) {
       // clear calculator
       case "AC":
         console.log("input AC:");
-        //setLog("0");
         setOutput("0");
         setOperand("0");
+        setOutputCalculated(false);
         equation = [];
         break;
       // decimal
       case ".":
         console.log("input .:");
+        // check if previous output is calculated and prevent modification of the result
+        if (outputCalculated) {
+          break;
+        }
         //check previous input type
         switch (output) {
           // when previous was operator or 0 take . as 0.
@@ -77,6 +79,10 @@ function App() {
       case "8":
       case "9":
         console.log("input 0-9:");
+        // check if previous output is calculated to prevent modification of the number
+        if (outputCalculated) {
+          break;
+        }
         //check previous input type
         switch (output) {
           // when previous was an operator reset output so only the new digit is shown
@@ -115,6 +121,12 @@ function App() {
       case "-":
       case "*":
       case "/":
+        console.log("input operator:");
+        // reset state of calculated if needed
+        if (outputCalculated) {
+          setOutputCalculated(!outputCalculated);
+        }
+
         //check if previous input was an operator
         switch (output) {
           // when previous was an operator substitute by new operator
@@ -123,23 +135,49 @@ function App() {
           case "*":
           case "/":
             console.log(
-              "apply operators - previous was operator - eliminate and subsitute"
+              "input operator: previous was operator - eliminate and subsitute"
             );
             equation.pop();
+            equation.push(key);
+            break;
+          // when previous was 0. complete as 0.0
+          case "0.":
+            equation.push("0.0");
             equation.push(key);
             break;
           default:
             // when previous was a number push as operand into equation
             console.log(
-              "apply operators - previous was number . push operand and operator into array"
+              "input operator: previous was number . push operand and operator into array"
             );
             equation.push(operand);
             equation.push(key);
             break;
         }
         // finally update output to show only operator
-        console.log("finally - push current output into array");
+        console.log("input operator: finally - push current output into array");
         setOutput(key);
+        break;
+      // = solveEquation
+      case "=":
+        console.log("input =");
+        // store pending output
+        equation.push(output);
+        // clean orphaned operators
+        cleanEquation();
+        // calculate
+        const result = solveEquation().toString(10);
+        console.log(`result: ${result}`);
+        setOutput(result);
+        setOperand(result);
+        // mark as calculated output to prevent modification, unless its 0
+        if (result !== "0") {
+          setOutputCalculated(true);
+        } else {
+          setOutputCalculated(false);
+        }
+        // reset eq
+        equation = [];
         break;
       default:
         break;
@@ -147,10 +185,58 @@ function App() {
     // reset states so next digits can be entered
     resetKey();
   };
+
+  // f to clean eq array
+  const cleanEquation = () => {
+    console.log("cleanEquation - called");
+    switch (equation[equation.length - 1]) {
+      // if last element is an operator delete it
+      case "+":
+      case "-":
+      case "*":
+      case "/":
+        console.log("cleanEquation - last element orphan operator");
+        equation.pop();
+        break;
+      // otehrwise break
+      default:
+        console.log("cleanEquation - break");
+        break;
+    }
+  };
+
+  // f to solve eq on pressing =
+  const solveEquation = () => {
+    console.log("solveEquation - called");
+    // asign and convert to type number
+    const a = Number(equation[0]);
+    const op = equation[1];
+    const b = Number(equation[2]);
+    console.log(`a: ${a}; op: ${op}; b: ${b};`);
+    if (equation.length === 3) {
+      console.log("solveEquation: equation length is 3; calculating");
+      switch (op) {
+        case "+":
+          return a + b;
+        case "-":
+          return a - b;
+        case "*":
+          return a * b;
+        case "/":
+          return a / b;
+        default:
+          return 0;
+      }
+    }
+    console.log("solveEquation: equation length is NOT 3; returning 0");
+    return 0;
+  };
+
   // ef to auto run handleKey when user clicks a button
   useEffect(() => handleKey(key), [key]);
 
-  useEffect(() => console.log(equation), [key]);
+  useEffect(() => console.log(equation), [key, outputCalculated]);
+  // ef to solve as user inputs new operands
 
   return (
     <>
@@ -211,7 +297,7 @@ function App() {
               recoverKey={recoverKey}
             ></Button>
             <Button
-              id="eigth"
+              id="eight"
               label="8"
               className="number"
               recoverKey={recoverKey}
@@ -235,7 +321,7 @@ function App() {
               recoverKey={recoverKey}
             ></Button>
             <Button
-              id="substract"
+              id="subtract"
               label="-"
               className="operator"
               recoverKey={recoverKey}
