@@ -7,7 +7,7 @@ let equation = [];
 function App() {
   const [key, setKey] = useState("key");
   const [output, setOutput] = useState("output");
-  const [log, setLog] = useState("log");
+  //const [log, setLog] = useState("log");
   const [operand, setOperand] = useState("operand");
 
   // f to recover clicked button value
@@ -28,11 +28,42 @@ function App() {
     switch (key) {
       // clear calculator
       case "AC":
-        console.log("case AC:");
-        setLog("0");
+        console.log("input AC:");
+        //setLog("0");
         setOutput("0");
         setOperand("0");
         equation = [];
+        break;
+      // decimal
+      case ".":
+        console.log("input .:");
+        //check previous input type
+        switch (output) {
+          // when previous was operator or 0 take . as 0.
+          case "+":
+          case "-":
+          case "*":
+          case "/":
+          case "0":
+            console.log("input .: previous data was operator or 0");
+            setOutput("0.");
+            setOperand("0.");
+            break;
+          // when previous is any non-0 number build decimal number
+          default:
+            console.log("input .: previous data was non-0 number");
+            // if . already present allow only one .
+            if (output.indexOf(".") !== -1) {
+              console.log(
+                "input .: previous data was non-0 number; . already present - breaking"
+              );
+              break;
+            } else {
+              setOutput(output + key);
+              setOperand(output + key);
+              break;
+            }
+        }
         break;
       // numbers
       case "0":
@@ -45,8 +76,7 @@ function App() {
       case "7":
       case "8":
       case "9":
-      case ".":
-        console.log("numbers case 0-9:");
+        console.log("input 0-9:");
         //check previous input type
         switch (output) {
           // when previous was an operator reset output so only the new digit is shown
@@ -54,34 +84,17 @@ function App() {
           case "-":
           case "*":
           case "/":
-            console.log("case 0-9: previous data was operator");
+            console.log("input 0-9: previous data was operator");
             setOutput(key);
             setOperand(key);
             break;
           // when previous was not an operator build number
           default:
-            console.log("case 0-9: previous data was digit");
-            // allow only one .
-            if (key === ".") {
-              console.log("input is .");
-              if (output.indexOf(".") !== -1) {
-                console.log(". already present - breaking");
-                break;
-              } else if (output === "0") {
-                console.log("output was 0: 0.");
-                setOutput("0.");
-                setOperand("0.");
-                break;
-              } else {
-                setOutput(output + key);
-                setOperand(output + key);
-                break;
-              }
-            }
+            console.log("input 0-9: previous data was digit");
             // allow only one initial 0
             if (output === "0") {
               console.log(
-                "case 0-9: previous data was digit: allow only one initial 0"
+                "input 0-9: previous data was digit: allow only one initial 0"
               );
               setOutput(key);
               setOperand(key);
@@ -89,7 +102,7 @@ function App() {
             // allow multiple digits number
             else {
               console.log(
-                "case 0-9: previous data was digit: allow multiple digits number"
+                "input 0-9: previous data was digit: allow multiple digits number"
               );
               // build number pushing new char
               setOutput(output + key);
@@ -145,8 +158,7 @@ function App() {
       <main>
         <article className="calculator">
           <div id="display">
-            <p>{equation}</p>
-            <p id="log">{log}</p>
+            <p id="log">{equation}</p>
             <p id="output">{output}</p>
           </div>
           <div id="keypad">
