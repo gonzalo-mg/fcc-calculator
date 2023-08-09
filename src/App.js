@@ -165,9 +165,14 @@ function App() {
         equation.push(output);
         // clean orphaned operators
         cleanEquation();
+        // if not enough elements to solve, do nothing and wait
+        if (equation.length < 3) {
+          console.log(`input =: not enough elements to solve`);
+          break;
+        }
         // calculate
         const result = solveEquation().toString(10);
-        console.log(`result: ${result}`);
+        console.log(`input =: result: ${result}`);
         setOutput(result);
         setOperand(result);
         // mark as calculated output to prevent modification, unless its 0
@@ -205,31 +210,52 @@ function App() {
     }
   };
 
+  // f to compute calculation
+  const calculate = (digit1, operator, digit2) => {
+    console.log("calculate - called");
+    // asign and convert to type number
+    const a = Number(digit1);
+    const b = Number(digit2);
+    console.log(`a: ${a}; operator: ${operator}; b: ${b};`);
+    switch (operator) {
+      case "+":
+        return a + b;
+      case "-":
+        return a - b;
+      case "*":
+        return a * b;
+      case "/":
+        if (b !== 0) {
+          return a / b;
+        } else {
+          return Infinity;
+        }
+      default:
+        return undefined;
+    }
+  };
+
   // f to solve eq on pressing =
   const solveEquation = () => {
     console.log("solveEquation - called");
-    // asign and convert to type number
-    const a = Number(equation[0]);
-    const op = equation[1];
-    const b = Number(equation[2]);
-    console.log(`a: ${a}; op: ${op}; b: ${b};`);
-    if (equation.length === 3) {
-      console.log("solveEquation: equation length is 3; calculating");
-      switch (op) {
-        case "+":
-          return a + b;
-        case "-":
-          return a - b;
-        case "*":
-          return a * b;
-        case "/":
-          return a / b;
-        default:
-          return 0;
-      }
+
+    cleanEquation();
+
+    // take first 3 elements: digit-operator-digit and compute
+    let result = calculate(equation[0], equation[1], equation[2]);
+    console.log(`solveEquation - result: ${result}`);
+    // while elements in array take next elements 2 by 2: operator-digit
+    for (let e = 3; e < equation.length; e += 2) {
+      console.log(
+        `solveEquation - loop - e:${e}; e+1:${e + 1}; equation.length: ${
+          equation.length
+        } `
+      );
+      // compute with parcialResult
+      result = calculate(result, equation[e], equation[e + 1]);
     }
-    console.log("solveEquation: equation length is NOT 3; returning 0");
-    return 0;
+    console.log(`solveEquation - result:${result}`);
+    return result;
   };
 
   // ef to auto run handleKey when user clicks a button
