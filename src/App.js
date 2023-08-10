@@ -295,7 +295,7 @@ function App() {
     <>
       <header>Calculator</header>
       <main>
-        <article className="calculator">
+        <article id="calculator">
           <div id="screen">
             <p id="log">{mainMemory}</p>
             <p id="display">{displayMemory}</p>
