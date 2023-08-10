@@ -10,8 +10,6 @@ let displayMemory = "0";
 function App() {
   // user input
   const [key, setKey] = useState(null);
-  // UI display
-  const [display, setDisplay] = useState("0");
   // mark displayed number as result of previous calculation to prevent modification by inputing new digits
   const [outputCalculated, setOutputCalculated] = useState(false);
   // mark as building negative number
@@ -283,9 +281,8 @@ function App() {
         break;
     }
 
-    console.log(`handleKey - exists with equation ${mainMemory}`);
+    console.log(`handleKey - exits with equation ${mainMemory}`);
     console.log(mainMemory);
-    setDisplay(mainMemory);
 
     // reset states so next inputs can be entered
     resetKey();
@@ -300,7 +297,7 @@ function App() {
       <main>
         <article className="calculator">
           <div id="screen">
-            <p id="log">{display}</p>
+            <p id="log">{mainMemory}</p>
             <p id="display">{displayMemory}</p>
           </div>
           <div id="keypad">
