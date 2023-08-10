@@ -66,7 +66,7 @@ main{
   justify-items: center;
  }
 
-#display{
+#screen{
   width: 20rem;
   height: 5rem;
 
@@ -78,16 +78,15 @@ main{
   justify-content: space-around;
   
   background-color: rosybrown;
-  color: green;
   border: 0.5rem solid palevioletred;
 }
 
-#output{
-  color: black;
+#display{
+  color: green;
 }
 
 #log{
-  color: darkred;
+  color: black;
 }
 
 #equals{
