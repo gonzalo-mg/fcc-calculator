@@ -2,18 +2,16 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { Button } from "./components/Button";
 
-// storage of final numbers and operators
-let mainMemory = [];
 // storage of strings to build numbers and UI display
-let displayMemory = "0";
+let memory = "0";
+let display ="0";
 
 function App() {
   // user input
   const [key, setKey] = useState(null);
   // mark displayed number as result of previous calculation to prevent modification by inputing new digits
-  const [outputCalculated, setOutputCalculated] = useState(false);
-  // mark as building negative number
-  const [negativeNumber, setNegativeNumber] = useState(false);
+  const [displayCalculated, setDisplayCalculated] = useState(false);
+
 
   // f to recover clicked button value
   const recoverKey = (clickedKey) => {
@@ -24,116 +22,71 @@ function App() {
     setKey(null);
   };
 
-  // f to clean mainMemory of operators without numbers to apply to
-  const deleteOrphanOperators = () => {
-    console.log("deleteOrphanOperators - called");
-    switch (mainMemory[mainMemory.length - 1]) {
-      // if last element is an operator delete it
-      case "+":
-      case "-":
-      case "*":
-      case "/":
-        mainMemory.pop();
-        break;
-      // otherwise do nothing
-      default:
-        break;
-    }
-    console.log("deleteOrphanOperators - returns:");
-    console.log(mainMemory);
-  };
-
   // f to compute calculation
-  const calculate = (digit1, operator, digit2) => {
-    console.log("calculate - called");
-    // asign and convert to type number
-    const a = Number(digit1);
-    const b = Number(digit2);
-    console.log(
-      `calculate parameters; a: ${a}; operator: ${operator}; b: ${b};`
-    );
-    switch (operator) {
-      case "+":
-        return a + b;
-      case "-":
-        return a - b;
-      case "*":
-        return a * b;
-      case "/":
-        if (b !== 0) {
-          return a / b;
-        } else {
-          return Infinity;
-        }
-      default:
-        return undefined;
-    }
-  };
-
-  // f to solve mainMemory on pressing =
-  const solveMainMemory = () => {
-    console.log("solveMainMemory - called");
-
-    deleteOrphanOperators();
-
-    // take first 3 elements: digit-operator-digit and compute
-    let result = calculate(mainMemory[0], mainMemory[1], mainMemory[2]);
-    // while elements in array take next elements 2 by 2: operator-digit
-    for (let e = 3; e < mainMemory.length; e += 2) {
-      // compute with parcialResult
-      result = calculate(result, mainMemory[e], mainMemory[e + 1]);
-    }
-    console.log(`solveMainMemory - result:${result}`);
-    return result;
-  };
+  const evaluate = (expresion) => {
+    return eval(expresion);
+  }
 
   // f to handle clicked key
   const handleKey = (key) => {
     console.log(`handleKey - called with key: ${key}`);
-    console.log(`handleKey - called with equation ${mainMemory}`);
-    console.log(mainMemory);
+    console.log(`handleKey - called with memory: ${memory}`);
+
+     // check if second-last input was operator ; allow only 2 consecutive operators
+     const lastChar = memory.length-1;
+     const secondLastChar = lastChar-1;
+     const thirdLastChar = secondLastChar-1;
+     const previousOperator = memory.slice(lastChar);
+     const previous2Operator = memory.slice(secondLastChar, lastChar);
+     const previous3Operator = memory.slice(thirdLastChar, secondLastChar);
+     console.log(`previousOperator: ${previousOperator}`)
+     console.log(`previous2Operator: ${previous2Operator}`)
+     console.log(`previous3Operator: ${previous3Operator}`)
+
     switch (key) {
       case null:
         return undefined;
-      // input AC
+      // input "AC"
       case "AC":
-        setOutputCalculated(false);
-        mainMemory = [];
-        displayMemory = "0";
+        setDisplayCalculated(false);
+        memory = "0";
+        display = "0";
         break;
-      // input .
+      // input "."
       case ".":
-        // check if previous output is calculated and prevent modification of the result
-        if (outputCalculated) {
+        // check if display is calculated and if so prevent modification of the result
+        if (displayCalculated) {
           break;
         }
-        //check previous input type
-        switch (displayMemory) {
-          // when previous input was operator or 0 take . as 0.
+        //check last input type
+        switch (display.slice(-1)) {
+          // when it is operator or 0 input "." as "0."
           case "+":
           case "-":
           case "*":
           case "/":
           case "0":
             console.log("previous was operator or 0");
-            displayMemory = "0.";
+            memory = "0.0";
+            display = "0.0"
             break;
-          // when previous input was any non-0 number build decimal number
+          // when it is any non-0 number build decimal number
           default:
             console.log("previous was non-0 number");
-            // if . already present allow only one .
-            if (displayMemory.indexOf(".") !== -1) {
+            // if "." already present do not allow another one "."
+            if (display.indexOf(".") !== -1) {
               console.log("decimal . already present: breaking");
               break;
             }
             // otherwise build decimal number
             else {
-              displayMemory += key;
+              display += key;
+              memory += key;
               break;
             }
         }
         break;
-      // input digit
+      // input new digit
       case "0":
       case "1":
       case "2":
@@ -144,151 +97,145 @@ function App() {
       case "7":
       case "8":
       case "9":
+        console.log(`input ${key}`)
         // check if current output is calculated to prevent modification of the number
-        if (outputCalculated) {
+        if (displayCalculated) {
           break;
         }
-        //check previous input type
-        switch (displayMemory) {
-          // when previous was an operator, except -
+        //check last input
+        switch (display) {
+          // when it is an operator
           case "+":
+          case "-":  
           case "*":
           case "/":
             console.log("previous was operator");
-            // reset output so only the new digit is shown
-            // start number building
-            displayMemory = key;
+            // reset display to show only new digit and start building number
+            display = key;
+            memory += key;
             break;
+          // when it is 0
           case "0":
             console.log("previous was 0");
-            displayMemory = key;
-            break;
-          // when previous was - operator
-          case "-":
-            if (negativeNumber) {
-              console.log("previous was -; building negative number");
-              // build number pushing new char
-              displayMemory += key;
-              setNegativeNumber(false);
-            } else {
-              displayMemory = key;
-            }
+            display = key;
+            // delete initial 0
+            memory = key;
             break;
           // otherwise keep building number
           default:
             console.log("previous was digit");
             // build number pushing new char
-            displayMemory += key;
+            display += key;
+            memory += key;
             break;
         }
         break;
-      // input operator (except -)
+      // input operator
       case "+":
       case "*":
       case "/":
-        // reset state of calculated if needed
-        if (outputCalculated) {
-          setOutputCalculated(!outputCalculated);
+        console.log(`input ${key}`)
+        if (displayCalculated) {
+          // reset state of calculated
+          setDisplayCalculated(!displayCalculated);
+          // turn previous solution as memory default (resets visual log to previous solution)
+          memory = display;
         }
         //check if previous input was an operator
-        switch (displayMemory) {
-          // when previous was an operator substitute by new operator
+        switch (display) {
+          // substitute by new operator
           case "+":
-          case "-":
           case "*":
           case "/":
-            console.log("previous was operator - eliminate and subsitute");
-            mainMemory.pop();
-            mainMemory.push(key);
-            displayMemory = key;
+            console.log("previous was operator +*/ ; eliminate and subsitute with new operator");
+            display = key;
+            // remove previous operator
+            memory = memory.slice(0,-1);
+            // add current
+            memory += key;
             break;
-          // when previous was 0. complete as 0.0
-          case "0.":
-            mainMemory.push("0.0");
-            mainMemory.push(key);
-            displayMemory = key;
+          // AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII  al introducir +- y luego un nuevo operador qeda ++ lo q no es computable
+          case "-":
+            // +- > +*
+            console.log("previous was operator - ; eliminate and subsitute all inmediate operators with new operator");
+            display = key;
+            // remove previous operators
+            if (typeof previous2Operator !== "number"){
+              // two if user was building negative number (prevents 2 operators with no -)
+              memory = memory.slice(0,-2);
+            } else {
+              memory = memory.slice(0,-1);
+            }
+            // add current operatpr
+            memory += key;
             break;
           default:
-            // when previous was a number push as operand into equation
+            // when previous was a number keep building expression
             console.log(
-              "previous was number; push operand and operator into array"
+              "previous was number"
             );
-            mainMemory.push(displayMemory);
-            mainMemory.push(key);
-            displayMemory = key;
+            display = key;
+            memory += key;
             break;
         }
         break;
       // input - operator
       case "-":
-        // reset state of calculated if needed
-        if (outputCalculated) {
-          setOutputCalculated(!outputCalculated);
+        console.log(`input ${key}`)
+        if (displayCalculated) {
+          // reset state of calculated
+          setDisplayCalculated(!displayCalculated);
+          // turn previous solution as memory default (resets visual log to previous solution)
+          memory = display;
         }
-        switch (displayMemory) {
+        //check if last input was an operator
+        switch (display) {
+          // keep both operators to build negative numbers
           case "+":
-          case "-":
           case "*":
           case "/":
-            console.log("previous was operator; build negative number");
-            // start building negative number
-            setNegativeNumber(true);
-            console.log("ready to build negative number");
-            displayMemory = key;
+            console.log(`last input was operator: ${display}`)
+            display = key;
+            memory += key;
             break;
-          // when previous was 0. complete as 0.0
-          case "0.":
-            mainMemory.push("0.0");
-            mainMemory.push(key);
-            displayMemory = key;
+          case "-":
+            console.log(`last input was operator: ${display}`)
+            // allow max 2 consecutive operators
+            if(typeof previous2Operator === "number"){
+              break;
+            }
+            // allow max 2 consecutive --
+            if(previousOperator === "-"){
+              break;
+            }
+            display = key;
+            memory += key;
             break;
           default:
-            // when previous was a number do regular subtract
-            console.log(
-              "previous was number; push operand and operator into array"
-            );
-            mainMemory.push(displayMemory);
-            mainMemory.push(key);
-            displayMemory = key;
+            display = key;
+            memory += key;
             break;
-        }
-        break;
-      // = solveEquation
+      }
+      break;
+      // compute
       case "=":
-        console.log("input =");
-        // store pending operand
-        mainMemory.push(displayMemory);
-
-        // if not enough elements to solve, do nothing and wait
-        if (mainMemory.length < 3) {
-          console.log(`not enough elements to solve: ${mainMemory}`);
-          break;
-        }
-        // calculate
-        const result = solveMainMemory().toString(10);
-        console.log(`result: ${result}`);
-        displayMemory = result;
-        // mark as calculated output to prevent modification, unless its 0
-        if (result !== "0") {
-          setOutputCalculated(true);
-        } else {
-          setOutputCalculated(false);
-        }
-        // reset mainMemory
-        mainMemory = [];
+        console.log(`input ${key}`)
+        const solution = evaluate(memory);
+        display = solution;
+        memory += key+solution
+        setDisplayCalculated(true);
         break;
       default:
         break;
     }
 
-    console.log(`handleKey - exits with equation ${mainMemory}`);
-    console.log(mainMemory);
+    console.log(`handleKey - exits with equation: ${memory}`);
 
     // reset states so next inputs can be entered
     resetKey();
   };
 
-  // ef to auto run handleKey when user clicks a button
+  // effect to auto run handleKey when user clicks a button
   useEffect(() => handleKey(key), [key]);
 
   return (
@@ -297,8 +244,8 @@ function App() {
       <main>
         <article id="calculator">
           <div id="screen">
-            <p id="log">{mainMemory}</p>
-            <p id="display">{displayMemory}</p>
+            <p id="log">{memory}</p>
+            <p id="display">{display}</p>
           </div>
           <div id="keypad">
             <Button
