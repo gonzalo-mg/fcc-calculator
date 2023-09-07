@@ -66,8 +66,8 @@ function App() {
           case "/":
           case "0":
             console.log("previous was operator or 0");
-            memory = "0.0";
-            display = "0.0";
+            memory += "0.";
+            display = "0.";
             break;
           // when it is any non-0 number build decimal number
           default:
