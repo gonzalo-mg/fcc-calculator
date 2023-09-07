@@ -4,14 +4,13 @@ import { Button } from "./components/Button";
 
 // storage of strings to build numbers and UI display
 let memory = "0";
-let display ="0";
+let display = "0";
 
 function App() {
   // user input
   const [key, setKey] = useState(null);
   // mark displayed number as result of previous calculation to prevent modification by inputing new digits
   const [displayCalculated, setDisplayCalculated] = useState(false);
-
 
   // f to recover clicked button value
   const recoverKey = (clickedKey) => {
@@ -25,23 +24,23 @@ function App() {
   // f to compute calculation
   const evaluate = (expresion) => {
     return eval(expresion);
-  }
+  };
 
   // f to handle clicked key
   const handleKey = (key) => {
     console.log(`handleKey - called with key: ${key}`);
     console.log(`handleKey - called with memory: ${memory}`);
 
-     // check if second-last input was operator ; allow only 2 consecutive operators
-     const lastChar = memory.length-1;
-     const secondLastChar = lastChar-1;
-     const thirdLastChar = secondLastChar-1;
-     const previousOperator = memory.slice(lastChar);
-     const previous2Operator = memory.slice(secondLastChar, lastChar);
-     const previous3Operator = memory.slice(thirdLastChar, secondLastChar);
-     console.log(`previousOperator: ${previousOperator}`)
-     console.log(`previous2Operator: ${previous2Operator}`)
-     console.log(`previous3Operator: ${previous3Operator}`)
+    // check if second-last input was operator ; allow only 2 consecutive operators
+    const lastChar = memory.length - 1;
+    const secondLastChar = lastChar - 1;
+    const thirdLastChar = secondLastChar - 1;
+    const previousOperator = memory.slice(lastChar);
+    const previous2Operator = memory.slice(secondLastChar, lastChar);
+    const previous3Operator = memory.slice(thirdLastChar, secondLastChar);
+    console.log(`previousOperator: ${previousOperator}`);
+    console.log(`previous2Operator: ${previous2Operator}`);
+    console.log(`previous3Operator: ${previous3Operator}`);
 
     switch (key) {
       case null:
@@ -68,7 +67,7 @@ function App() {
           case "0":
             console.log("previous was operator or 0");
             memory = "0.0";
-            display = "0.0"
+            display = "0.0";
             break;
           // when it is any non-0 number build decimal number
           default:
@@ -97,7 +96,7 @@ function App() {
       case "7":
       case "8":
       case "9":
-        console.log(`input ${key}`)
+        console.log(`input ${key}`);
         // check if current output is calculated to prevent modification of the number
         if (displayCalculated) {
           break;
@@ -106,7 +105,7 @@ function App() {
         switch (display) {
           // when it is an operator
           case "+":
-          case "-":  
+          case "-":
           case "*":
           case "/":
             console.log("previous was operator");
@@ -134,7 +133,7 @@ function App() {
       case "+":
       case "*":
       case "/":
-        console.log(`input ${key}`)
+        console.log(`input ${key}`);
         if (displayCalculated) {
           // reset state of calculated
           setDisplayCalculated(!displayCalculated);
@@ -147,33 +146,35 @@ function App() {
           case "+":
           case "*":
           case "/":
-            console.log("previous was operator +*/ ; eliminate and subsitute with new operator");
+            console.log(
+              "previous was operator +*/ ; eliminate and subsitute with new operator"
+            );
             display = key;
             // remove previous operator
-            memory = memory.slice(0,-1);
+            memory = memory.slice(0, -1);
             // add current
             memory += key;
             break;
           // AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII  al introducir +- y luego un nuevo operador qeda ++ lo q no es computable
           case "-":
             // +- > +*
-            console.log("previous was operator - ; eliminate and subsitute all inmediate operators with new operator");
+            console.log(
+              "previous was operator - ; eliminate and subsitute all inmediate operators with new operator"
+            );
             display = key;
             // remove previous operators
-            if (typeof previous2Operator !== "number"){
+            if (typeof previous2Operator !== "number") {
               // two if user was building negative number (prevents 2 operators with no -)
-              memory = memory.slice(0,-2);
+              memory = memory.slice(0, -2);
             } else {
-              memory = memory.slice(0,-1);
+              memory = memory.slice(0, -1);
             }
             // add current operatpr
             memory += key;
             break;
           default:
             // when previous was a number keep building expression
-            console.log(
-              "previous was number"
-            );
+            console.log("previous was number");
             display = key;
             memory += key;
             break;
@@ -181,7 +182,7 @@ function App() {
         break;
       // input - operator
       case "-":
-        console.log(`input ${key}`)
+        console.log(`input ${key}`);
         if (displayCalculated) {
           // reset state of calculated
           setDisplayCalculated(!displayCalculated);
@@ -194,18 +195,18 @@ function App() {
           case "+":
           case "*":
           case "/":
-            console.log(`last input was operator: ${display}`)
+            console.log(`last input was operator: ${display}`);
             display = key;
             memory += key;
             break;
           case "-":
-            console.log(`last input was operator: ${display}`)
+            console.log(`last input was operator: ${display}`);
             // allow max 2 consecutive operators
-            if(typeof previous2Operator === "number"){
+            if (typeof previous2Operator === "number") {
               break;
             }
             // allow max 2 consecutive --
-            if(previousOperator === "-"){
+            if (previousOperator === "-") {
               break;
             }
             display = key;
@@ -215,14 +216,14 @@ function App() {
             display = key;
             memory += key;
             break;
-      }
-      break;
+        }
+        break;
       // compute
       case "=":
-        console.log(`input ${key}`)
+        console.log(`input ${key}`);
         const solution = evaluate(memory);
         display = solution;
-        memory += key+solution
+        memory += key + solution;
         setDisplayCalculated(true);
         break;
       default:
@@ -267,6 +268,12 @@ function App() {
               recoverKey={recoverKey}
             ></Button>
             <Button
+              id="add"
+              label="+"
+              className="operator"
+              recoverKey={recoverKey}
+            ></Button>
+            <Button
               id="three"
               label="3"
               className="number"
@@ -282,6 +289,12 @@ function App() {
               id="five"
               label="5"
               className="number"
+              recoverKey={recoverKey}
+            ></Button>
+            <Button
+              id="subtract"
+              label="-"
+              className="operator"
               recoverKey={recoverKey}
             ></Button>
             <Button
@@ -303,6 +316,12 @@ function App() {
               recoverKey={recoverKey}
             ></Button>
             <Button
+              id="multiply"
+              label="*"
+              className="operator"
+              recoverKey={recoverKey}
+            ></Button>
+            <Button
               id="nine"
               label="9"
               className="number"
@@ -311,37 +330,19 @@ function App() {
             <Button
               id="decimal"
               label="."
-              className="operator"
-              recoverKey={recoverKey}
-            ></Button>
-            <Button
-              id="add"
-              label="+"
-              className="operator"
-              recoverKey={recoverKey}
-            ></Button>
-            <Button
-              id="subtract"
-              label="-"
-              className="operator"
-              recoverKey={recoverKey}
-            ></Button>
-            <Button
-              id="multiply"
-              label="*"
-              className="operator"
-              recoverKey={recoverKey}
-            ></Button>
-            <Button
-              id="divide"
-              label="/"
-              className="operator"
+              className="number"
               recoverKey={recoverKey}
             ></Button>
             <Button
               id="equals"
               label="="
               className="intro"
+              recoverKey={recoverKey}
+            ></Button>
+            <Button
+              id="divide"
+              label="/"
+              className="operator"
               recoverKey={recoverKey}
             ></Button>
             <Button
